@@ -9,7 +9,7 @@ chunk profiling information, which can be visualized and further analyzed.
 
 ```
 install.packages("devtools")  ## if 'devtools' not installed
-devtools::install_github("nielsrhansen/knitrflow")
+devtools::install_github("nielsrhansen/knitrflow", build_vignettes = TRUE)
 ```
 
 ## Usage
