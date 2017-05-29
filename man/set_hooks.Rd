@@ -7,7 +7,7 @@
 set_hooks()
 }
 \description{
-When called, this function sets the hook functions \code{.__timeit} and
+When called, this function sets the hook functions \code{.__flow} and
 \code{.__grab}. It is called when the
 knitrflow package is attached, thus these hooks are set whenever the package
 is loaded.

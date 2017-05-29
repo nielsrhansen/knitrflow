@@ -61,6 +61,28 @@ new_defaults = function(value = list()) {
   list(get = get, set = set, merge = merge, restore = restore)
 }
 
+dep_auto = function(nodes, dep_list, path) {
+  paths = valid_path(path, c('__objects', '__globals'))
+  locals = parse_objects(paths[1L]); globals = parse_objects(paths[2L])
+  if (is.null(locals) || is.null(globals)) return(invisible(NULL))
+  if (!identical(names(locals), names(globals))) {
+    warning('corrupt dependency files? \ntry remove ', paste(paths, collapse = '; '))
+    return(invisible(NULL))
+  }
+  nms = intersect(nodes, names(locals)) # guarantee correct order
+  # locals may contain old chunk names; the intersection can be of length < 2
+  if (length(nms) < 2) return(invisible(NULL))
+  for (i in 2:length(nms)) {
+    if (length(g <- globals[[nms[i]]]) == 0) next
+    for (j in 1:(i - 1L)) {
+      # check if current globals are in old locals
+      if (any(g %in% locals[[nms[j]]]))
+        dep_list$set(stats::setNames(list(unique(c(dep_list$get(nms[j]), nms[i]))), nms[j]))
+    }
+  }
+  dep_list
+}
+
 ## Merge file sizes to node names, format results
 file_size <- function(nodes, sizes, glue = "_") {
   node_sizes <- numeric(length(nodes))

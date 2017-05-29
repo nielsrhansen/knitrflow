@@ -15,6 +15,7 @@ dataflow_graph <- function(file = NULL) {
     nodes <- genv$nodes
     timings <- genv$timings
     dep_list <- genv$grab_dep$get()
+    dep_list <- dep_list[sapply(dep_list, length) > 0]
     dep_list_auto <- genv$grab_dep_auto$get()
     objects <- genv$objects
     globals <- genv$globals
@@ -22,26 +23,26 @@ dataflow_graph <- function(file = NULL) {
     fig_sizes <- genv$fig_sizes
 
     ## Transform graph data grabbed from knit
-    children <- unlist(dep_list)
-    parents <- names(dep_list)
+    parents <- unique(unlist(dep_list))
+    children <- names(dep_list)
     children_auto <- unlist(dep_list_auto)
     parents_auto <- names(dep_list_auto)
     nodes <- intersect(nodes, c(parents, children, parents_auto, children_auto))
     to <- from <- rel <- edge_label <- vector("list")
     j <- 1
-    for(i in parents) {
-      ch <- dep_list[[i]]
-      k <-  length(ch)
-      edge_label[[i]] <- sapply(ch, function(j)
-        paste(intersect(globals[[j]], objects[[i]]), collapse = "; "))
-      from[[i]] <- rep(which(nodes == i), k)
-      to[[i]] <- match(ch, nodes)
+    for(i in children) {
+      pa <- dep_list[[i]]
+      k <-  length(pa)
+      edge_label[[i]] <- sapply(pa, function(j)
+        paste(intersect(globals[[i]], objects[[j]]), collapse = "; "))
+      to[[i]] <- rep(which(nodes == i), k)
+      from[[i]] <- match(pa, nodes)
       rel[[i]] <- rep("manual", k)
     }
 
     for(i in parents_auto) {
       if (i %in% parents) {
-        ch <- dep_list[[i]]
+        ch <- children[sapply(dep_list, function(y) i %in% y)]
         ch_auto <- dep_list_auto[[i]]
         ch <- setdiff(ch_auto, ch)
       } else {
@@ -72,21 +73,29 @@ dataflow_graph <- function(file = NULL) {
     cache_sizes <- file_size(nodes, cache_sizes)
     fig_sizes <- file_size(nodes, fig_sizes, "-")
 
+    ninobj <- nodes %in% names(objects)
+    objects[nodes[!ninobj]] <- ""
     objects <- sapply(objects, paste, collapse = "; ")[nodes]
-    flow <- DiagrammeR::create_graph(
-      DiagrammeR::create_node_df(length(nodes),
-                                 label = nodes,
-                                 times = times,
-                                 sizes = cache_sizes,
-                                 fsizes = fig_sizes,
-                                 objects = objects),
-      DiagrammeR::create_edge_df(from, to, rel, color = edge_color,
-                                 label = edge_label),
-      attr_theme = NULL
-    )
+    if (length(nodes) == 0) {
+      flow <- DiagrammeR::create_graph(attr_theme = NULL)
+    } else {
+      flow <- DiagrammeR::create_graph(
+        DiagrammeR::create_node_df(length(nodes),
+                                   label = nodes,
+                                   times = times,
+                                   sizes = cache_sizes,
+                                   fsizes = fig_sizes,
+                                   objects = objects),
+        DiagrammeR::create_edge_df(from, to, rel, color = edge_color,
+                                   label = edge_label),
+        attr_theme = NULL
+      )
+    }
     class(flow) <- c("dep_graph", class(flow))
-    if(!is.null(file))
+    if(!is.null(file)) {
       save(flow, file = file)
+      return(invisible(flow))
+    }
   }
   flow
 }
@@ -127,17 +136,8 @@ knit_flow <- function(..., cache.path = NULL, fig.path = NULL) {
     oefp <- FALSE
   }
 
-  knit_twice <- FALSE
-  if (!file.exists(valid_path(knitr::opts_chunk$get("cache.path"), "__objects")))
-    knit_twice <- TRUE
-
   ## Knit document
   knitr::knit(...)
-  ## TODO: Current implementation doesn't give the correct
-  ## manual dependencies unless the __objects and __globals
-  ## files already exist. Hence the second knitting.
-  if (knit_twice)
-    knitr::knit(..., quiet = TRUE)
 
   if (oecp)
     knitr::opts_chunk$set(cache.path = old_cp)
@@ -167,14 +167,16 @@ knit_flow <- function(..., cache.path = NULL, fig.path = NULL) {
 #'
 plot.dep_graph <- function(x, y = 'all', plot = TRUE, units = "by_chunk", ...) {
 
-  if (y == "manual")
-    x <- DiagrammeR::delete_edges_ws(
-      DiagrammeR::select_edges(x, "rel == 'auto'")
-      )
-  if (y == "auto")
-    x <- DiagrammeR::delete_edges_ws(
-      DiagrammeR::select_edges(x, "rel == 'manual'")
-      )
+  if (y == "manual") {
+    x <- DiagrammeR::select_edges(x, "rel == 'auto'")
+    if (nrow(x$edge_selection) > 0)
+      x <- DiagrammeR::delete_edges_ws(x)
+  }
+  if (y == "auto") {
+    x <- DiagrammeR::select_edges(x, "rel == 'manual'")
+    if (nrow(x$edge_selection) > 0)
+      x <- DiagrammeR::delete_edges_ws(x)
+  }
 
   nodes <- x$nodes_df
   if (units == "all_same") {
@@ -249,14 +251,16 @@ plot.dep_graph <- function(x, y = 'all', plot = TRUE, units = "by_chunk", ...) {
 summary.dep_graph <- function(object, y = 'all', ...) {
   x <- object
 
-  if (y == "manual")
-    x <- DiagrammeR::delete_edges_ws(
-      DiagrammeR::select_edges(x, "rel == 'auto'")
-    )
-  if (y == "auto")
-    x <- DiagrammeR::delete_edges_ws(
-      DiagrammeR::select_edges(x, "rel == 'manual'")
-    )
+  if (y == "manual") {
+    x <- DiagrammeR::select_edges(x, "rel == 'auto'")
+    if (nrow(x$edge_selection) > 0)
+      x <- DiagrammeR::delete_edges_ws(x)
+  }
+  if (y == "auto") {
+    x <- DiagrammeR::select_edges(x, "rel == 'manual'")
+    if (nrow(x$edge_selection) > 0)
+      x <- DiagrammeR::delete_edges_ws(x)
+  }
 
   nodes <- DiagrammeR::get_node_df(x)
   nodes$n.objects <- sapply(strsplit(nodes$objects, ";"), length)

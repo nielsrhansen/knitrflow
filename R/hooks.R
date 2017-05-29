@@ -1,6 +1,6 @@
 #' Sets knitr hook functions used by knitrflow
 #'
-#' When called, this function sets the hook functions \code{.__timeit} and
+#' When called, this function sets the hook functions \code{.__flow} and
 #' \code{.__grab}. It is called when the
 #' knitrflow package is attached, thus these hooks are set whenever the package
 #' is loaded.
@@ -12,19 +12,23 @@
 #' @export
 #'
 set_hooks <- function() {
-  ## Hook for chunk timing
+  ## Hook for chunk dependency tracking and timing
   knitr::knit_hooks$set(
-    .__timeit = local({
+    .__flow = local({
       now = NULL
       function(before, options) {
         res <- NULL
         if (before) {
+          if (!dir.exists(options$cache.path))
+            dir.create(options$cache.path)
           now <<- Sys.time()
         } else {
           res <- difftime(Sys.time(), now, units = "secs")
           path <- valid_path(options$cache.path, '__timings')
           now <<- NULL
           save_objects(res, options$label, path)
+          path <- valid_path(options$cache.path, '__depend')
+          save_objects(options$dependson, options$label, path)
         }
       }
     })
@@ -43,10 +47,9 @@ set_hooks <- function() {
       fig_sizes <- vector()
       function(before, options) {
         if (before) {
-          nodes <<- names(knitr:::knit_code$get())
           ## Timings
           path <- valid_path(options$cache.path, '__timings')
-          timings$set(parse_objects(path))
+          timings$restore(parse_objects(path))
           ## Cache sizes
           path <- options$cache.path
           files <- dir(path)
@@ -58,9 +61,11 @@ set_hooks <- function() {
           fig_sizes <<- file.size(paste0(path, files))
           names(fig_sizes) <<- files
           ## Dependency graph
-          grab_dep$restore(knitr:::dep_list$get())
-          knitr::dep_auto()
-          grab_dep_auto$restore(knitr:::dep_list$get())
+          path <- valid_path(options$cache.path, '__depend')
+          grab_dep$restore(parse_objects(path))
+          nodes <<- names(grab_dep$get())
+          grab_dep_auto$restore(list())
+          dep_auto(nodes, grab_dep_auto, options$cache.path)
           ## Objects
           path <- valid_path(options$cache.path, c('__objects', '__globals'))
           objects <<- parse_objects(path[1L])

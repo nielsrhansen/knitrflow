@@ -1,7 +1,7 @@
 Package: knitrflow
 Type: Package
 Title: Dataflow Graphs for knitr
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: person("Niels Richard", "Hansen", email = "Niels.R.Hansen@math.ku.dk",
                   role = c("aut", "cre"))
 Depends:

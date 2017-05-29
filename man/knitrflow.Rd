@@ -19,9 +19,9 @@ The function \code{\link{dataflow_graph}} can be used inside the last knitr chun
 to save the graph instead.
 
 When using \code{\link{knit_flow}}, the option \code{.__grab = TRUE} has to
-be set in a last (extra and empty) chunk, and the optional option \code{.__timeit = TRUE} can be
-set to time chunks. You can time individual chunks, or set it as a global option
-to time all chunks.
+be set in a last (extra and empty) chunk, and the optional option \code{.__flow = TRUE} can be
+set to get chunk dependency tracking and timing. You can track and time individual chunks, or
+set it as a global option to time all chunks.
 
 An alternative to calling \code{\link{knit_flow}} is to add \code{knitrflow::set_hooks()} to
 an initial (uncached) chunk and \code{knitrflow::dataflow_graph(file = "flow.RData")}
