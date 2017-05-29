@@ -9,14 +9,13 @@ chunk profiling information, which can be visualized and further analyzed.
 
 ```
 install.packages("devtools")  ## if 'devtools' not installed
-library(devtools)
-install_github("nielsrhansen/knitrflow")
+devtools::install_github("nielsrhansen/knitrflow")
 ```
 
 ## Usage
 
-To illustrate the usage of the package, consider the following 
-example.
+The following example provides a simple illustration of how 
+the package can be used, and what kind of information it can provide.
 
 ```
 library(knitrflow)
@@ -52,16 +51,16 @@ plotted and further analyzed in R.
 
 ### Using Graphviz command line tools
 
-It's possible to save the graph in the dot file format of Graphviz and 
+It's possible to save the graph in the dot file format of [Graphviz](http://www.graphviz.org) and 
 then use the command line tools to construct the graph. You then need to have 
-Graphviz installed. 
+[Graphviz installed](http://www.graphviz.org/Download..php). 
 
 ```
 ## Save the graph in the dot format.
 write(plot(flow, "manual", plot = FALSE), file = "flow.dot")
 ## Take a look at the textual representation of the graph.
 file.edit("flow.dot")
-## Run this to use the command line tool 'dot' for generating the 
+## Run the following to use the command line tool 'dot' for generating the 
 ## graph as a png-file.
 system("dot -Tpng flow.dot -o flow.png")
 ## Depending on your OS, view the file. This command works on OS X.
@@ -70,9 +69,15 @@ system("open flow.png")
 
 ## Disclaimer
 
-The package currently relies on the two unexported objects \code{knit_code} 
-and \code{dep_list} from knitr. Thus it relies on implementation details of knitr
+The package currently relies on the two unexported objects `knit_code`
+and `dep_list` from knitr. Thus it relies on implementation details of knitr
 that may change.
+
+Knitr doesn't *evaluate* chunks based on the dependencies. The evaluation is 
+done in the linear order of the input file. Even if chunks logically could be 
+evaluated in a different order according to the graph, this may not be doable 
+using knitr. This is primarily due to the fact that objects are shared across all 
+chunks during evaluation. 
 
 
 
