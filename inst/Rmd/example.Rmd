@@ -11,11 +11,11 @@ vignette: >
 
 ```{r initialize, include=FALSE}
 knitr::opts_chunk$set(cache = TRUE,        ## Activates caching
-                      autodep = TRUE,      ## Activates object analysis  
-                      .__timeit = TRUE)    ## Activates chunk timing
+                      .__flow = TRUE,      ## Activates chunk dependency tracking and timing
+                      autodep = TRUE)      ## Activates auto dependency and object tracking  
 library(ggplot2)    ## Required for this example
-## Uncomment the following to get chunk timings cached
-## no matter how the document is knitted.
+## Uncomment the following to get chunk dependency tracking 
+## and timing no matter how the document is knitted.
 ## knitrflow::set_hooks()  
 ```
 
