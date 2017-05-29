@@ -1,0 +1,67 @@
+---
+title: "knitr dependency example"
+author: "Niels Richard Hansen"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{knitr dependency example}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r initialize, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE,        ## Activates caching
+                      autodep = TRUE,      ## Activates object analysis  
+                      .__timeit = TRUE)    ## Activates chunk timing
+library(ggplot2)    ## Required for this example
+## Uncomment the following to get chunk timings cached
+## no matter how the document is knitted.
+## knitrflow::set_hooks()  
+```
+
+```{r cars}
+cars_lm <- lm(speed ~ dist, data = cars)
+```
+
+```{r carssum, dependson="cars"}
+summary(cars_lm)
+cars_coef <- coef(cars_lm)
+Sys.sleep(0.1)  ## To test the timing of the chunk
+```
+
+```{r carsscatter, dependson=c("carssum")}
+qplot(dist, speed, data = cars) + 
+  geom_abline(intercept = cars_coef[1], slope = cars_coef[2])
+```
+
+```{r carsrev}
+cars_lm_rev <- lm(dist ~ speed, data = cars)
+```
+
+```{r carssumrev, dependson="carsrev"}
+summary(cars_lm_rev)
+cars_coef <- coef(cars_lm_rev)
+Sys.sleep(0.3)  ## To test the timing of the chunk
+```
+
+```{r carsscatterrev, dependson="carssumrev"}
+qplot(speed, dist, data = cars) + 
+  geom_abline(intercept = cars_coef[1], slope = cars_coef[2])
+```
+
+```{r compare, dependson=c("cars", "carssumrev")}
+coef(cars_lm)
+c(- cars_coef[1], 1) / cars_coef[2]
+```
+
+The following chunk is an empty chunk with the `.__grab` option set. 
+This invokes the grabber function that gives `knit_flow` access to chunk data.
+
+```{r, cache=FALSE, .__grab=TRUE}
+## Uncomment the line below to save the flow graph data to a file.
+## knitrflow::dataflow_graph(file = "flow.RData")
+```
+
+Saving the graph can be used to obtain the data without running the file through 
+`knit_flow`, e.g. when knitting from RStudio.
+
