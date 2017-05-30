@@ -63,7 +63,15 @@ set_hooks <- function() {
           ## Dependency graph
           path <- valid_path(options$cache.path, '__depend')
           grab_dep$restore(parse_objects(path))
-          nodes <<- names(grab_dep$get())
+          nodes <<- names(knitr:::knit_code$get())
+          ## The solution above relies on an unexported object from knitr.
+          ## TODO: Is it possible to extract the correctly ordered chunk labels
+          ## from the current document in another way?
+          ## The solution below does not use internal knitr objects, but
+          ## it doesn't know what chunks are in the actual current document. Thus it
+          ## uses all information cached, and order chunks according to
+          ## cache ordering.
+          ## nodes <<- names(grab_dep$get())
           grab_dep_auto$restore(list())
           dep_auto(nodes, grab_dep_auto, options$cache.path)
           ## Objects

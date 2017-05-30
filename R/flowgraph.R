@@ -23,10 +23,10 @@ dataflow_graph <- function(file = NULL) {
     fig_sizes <- genv$fig_sizes
 
     ## Transform graph data grabbed from knit
-    parents <- unique(unlist(dep_list))
-    children <- names(dep_list)
-    children_auto <- unlist(dep_list_auto)
-    parents_auto <- names(dep_list_auto)
+    parents <- intersect(unique(unlist(dep_list)), nodes)
+    children <- intersect(names(dep_list), nodes)
+    children_auto <- intersect(unlist(dep_list_auto), nodes)
+    parents_auto <- intersect(names(dep_list_auto), nodes)
     nodes <- intersect(nodes, c(parents, children, parents_auto, children_auto))
     to <- from <- rel <- edge_label <- vector("list")
     j <- 1
@@ -42,7 +42,7 @@ dataflow_graph <- function(file = NULL) {
 
     for(i in parents_auto) {
       if (i %in% parents) {
-        ch <- children[sapply(dep_list, function(y) i %in% y)]
+        ch <- names(dep_list)[sapply(dep_list, function(y) i %in% y)]
         ch_auto <- dep_list_auto[[i]]
         ch <- setdiff(ch_auto, ch)
       } else {

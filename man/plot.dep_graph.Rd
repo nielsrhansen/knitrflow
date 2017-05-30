@@ -8,15 +8,15 @@
   ...)
 }
 \arguments{
-\item{x}{Object of class \code{dep_graph}. A dependency graphs for a knitr input file.}
+\item{x}{Object of class \code{dep_graph}. A dependency graph for a knitr input file.}
 
-\item{y}{Character, default to \code{'all'}. Possible values are \code{'all'},
-\code{'manual'} and \code{'auto'}, which selects which edges types are plotted.}
+\item{y}{Character, default \code{'all'}. Possible values are \code{'all'},
+\code{'manual'} and \code{'auto'}, which selects which edges type are plotted.}
 
-\item{plot}{Logical, default to \code{TRUE}. Should the generated plot actually be plotted.}
+\item{plot}{Logical, default \code{TRUE}. Should the generated plot actually be plotted.}
 
-\item{units}{Character, default \code{"by_chunk"}. Appropriate units on times and file sizes
-are computed individually for each chunk by default. Set to \code{"all_same"} to
+\item{units}{Character, default \code{'by_chunk'}. Appropriate units on times and file sizes
+are computed individually for each chunk by default. Set to \code{'all_same'} to
 get the same unit across all chunks.}
 
 \item{...}{Additional arguments passed on to \code{grViz}.}
