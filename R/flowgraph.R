@@ -153,19 +153,19 @@ knit_flow <- function(..., cache.path = NULL, fig.path = NULL) {
 #' Returns also the graph in the textual dot format (for Graphviz) that can processed
 #' using the Graphviz command line tools.
 #'
-#' @param x    Object of class \code{dep_graph}. A dependency graphs for a knitr input file.
-#' @param y    Character, default to \code{'all'}. Possible values are \code{'all'},
-#'             \code{'manual'} and \code{'auto'}, which selects which edges types are plotted.
-#' @param plot Logical, default to \code{TRUE}. Should the generated plot actually be plotted.
-#' @param units Character, default \code{"by_chunk"}. Appropriate units on times and file sizes
-#'              are computed individually for each chunk by default. Set to \code{"all_same"} to
+#' @param x    Object of class \code{dep_graph}. A dependency graph for a knitr input file.
+#' @param y    Character, default \code{'all'}. Possible values are \code{'all'},
+#'             \code{'manual'} and \code{'auto'}, which selects which edges type are plotted.
+#' @param plot Logical, default \code{TRUE}. Should the generated plot actually be plotted.
+#' @param units Character, default \code{'by_chunk'}. Appropriate units on times and file sizes
+#'              are computed individually for each chunk by default. Set to \code{'all_same'} to
 #'              get the same unit across all chunks.
 #' @param ...   Additional arguments passed on to \code{grViz}.
 #'
 #' @return A character string (invisibly) containing the graph in the dot format.
 #' @export
 #'
-plot.dep_graph <- function(x, y = 'all', plot = TRUE, units = "by_chunk", ...) {
+plot.dep_graph <- function(x, y = 'all', plot = TRUE, units = 'by_chunk', ...) {
 
   if (y == "manual") {
     x <- DiagrammeR::select_edges(x, "rel == 'auto'")
@@ -241,10 +241,11 @@ plot.dep_graph <- function(x, y = 'all', plot = TRUE, units = "by_chunk", ...) {
 #' file.
 #'
 #' @param object Object of class \code{dep_graph}. A dependency graph for a knitr input file.
-#' @param y    Character, default to \code{'all'}. Possible values are \code{'all'},
+#' @param y    Character, default \code{'all'}. Possible values are \code{'all'},
 #'             \code{'manual'} and \code{'auto'}, which selects which edges are included for
 #'             degree computations.
 #' @param ...    Additional arguments, currently ignored.
+#' @return A list of ggplot objects.
 #'
 #' @export
 #'
