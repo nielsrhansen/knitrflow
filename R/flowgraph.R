@@ -273,29 +273,29 @@ summary.dep_graph <- function(object, y = 'all', ...) {
   tmp <- tidyr::gather_(nodes[, c("id", "label", "indeg", "outdeg")],
                        "type", "degree", c("indeg", "outdeg"))
   p1 <- ggplot2::ggplot(nodes, ggplot2::aes_string("rev(id)", "times")) +
-    ggplot2::geom_col() + ggplot2::xlab("") +
+    ggplot2::geom_col(width = 0.7) + ggplot2::xlab("") +
     ggplot2::ylab(paste("Eval time (", attr(nodes$times, "unit"), ")", sep ="")) +
     ggplot2::scale_x_discrete(labels = rev(nodes$label)) +
     ggplot2::coord_flip()
   p2 <- ggplot2::ggplot(nodes, ggplot2::aes_string("rev(id)", "sizes")) +
-    ggplot2::geom_col() + ggplot2::xlab("") +
+    ggplot2::geom_col(width = 0.7) + ggplot2::xlab("") +
     ggplot2::ylab(paste("Cache size (", attr(nodes$sizes, "unit"), ")", sep = ""))  +
     ggplot2::scale_x_discrete(labels = NULL) +
     ggplot2::theme(axis.ticks = ggplot2::element_blank()) +
     ggplot2::coord_flip()
   p3 <- ggplot2::ggplot(nodes, ggplot2::aes_string("rev(id)", "fsizes")) +
-    ggplot2::geom_col() + ggplot2::xlab("") +
+    ggplot2::geom_col(width = 0.7) + ggplot2::xlab("") +
     ggplot2::ylab(paste("Fig size (", attr(nodes$fsizes, "unit"), ")", sep = ""))  +
     ggplot2::scale_x_discrete(labels = NULL) +
     ggplot2::theme(axis.ticks = ggplot2::element_blank()) +
     ggplot2::coord_flip()
   p4 <- ggplot2::ggplot(nodes, ggplot2::aes_string("rev(id)", "n.objects")) +
-    ggplot2::geom_col() + ggplot2::ylab("Nr of objects") + ggplot2::xlab("") +
+    ggplot2::geom_col(width = 0.7) + ggplot2::ylab("Nr of objects") + ggplot2::xlab("") +
     ggplot2::coord_flip() + ggplot2::scale_x_discrete(labels = NULL) +
     ggplot2::theme(axis.ticks = ggplot2::element_blank())
   p5 <- ggplot2::ggplot(tmp, ggplot2::aes_string("rev(id)", "degree", fill = "type")) +
-    ggplot2::geom_col() + ggplot2::ylab("Degree") + ggplot2::xlab("") +
-    ggplot2::coord_flip() + ggplot2::scale_fill_discrete("") +
+    ggplot2::geom_col(width = 0.7) + ggplot2::ylab("Degree") + ggplot2::xlab("") +
+    ggplot2::coord_flip() + ggplot2::scale_fill_brewer("", palette="Set1") +
     ggplot2::scale_x_discrete(labels = NULL) +
     ggplot2::theme(axis.ticks = ggplot2::element_blank())
 
