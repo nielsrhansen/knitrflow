@@ -74,13 +74,31 @@ system("dot -Tpng flow.dot -o flow.png")
 system("open flow.png")
 ```
 
-## Disclaimer
+## How to read the graph
 
 Knitr doesn't **evaluate** chunks based on the dependencies. The evaluation is 
 done in the linear order of the input file. Even if chunks logically could be 
 evaluated in a different order according to the graph, this may not be doable 
 using knitr. This is primarily due to the fact that variables (objects) are shared across all 
 chunks during evaluation. Thus variables can be overwritten by intermediate chunks. 
+
+The manually set `dependson` chunk options control the reevaluation of cached chunks. 
+When these options are set correctly and in a minimal way, the graph will reflect the 
+actual evaluation dependencies, and thus the dataflow. However, the graph of the `manual`
+edges reflects nothing but how the author perceives the evaluation dependencies. But 
+it may be provide a useful overview.
+
+The `auto` edges are obtained using a function derived from knitr's `dep_auto`. It's based 
+on a chunk's usage of non-local objects, and where such objects could have been defined in 
+other chunks. It's conservative, and may introduce many **potential** dependencies that are 
+not actual dependencies. This is particularly so, if a variable name is reused and 
+reassigned in many chunks. In summary, a red edge is potentially a dependency that were 
+missed by the manually set `dependson` options, but it need not be. 
+
+
+
+
+
 
 
 
