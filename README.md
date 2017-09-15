@@ -37,11 +37,12 @@ file.edit(example)
 ### More details
 
 To use the package you just need to add one chunk at the end of your 
-document with the  `.__grab = TRUE` option set. Then you can call `knit_flow` 
+document with the  `.__grab = TRUE` and `cache = FALSE` options set. Then you can call `knit_flow` 
 as if you were knitting your document. However, the result is a pretty boring 
 empty graph. To get something interesting set `.__flow = TRUE` either for the 
 chunks you want to track and time or as a global option to track and time all chunks.
-You will probably also want to turn on the cache. 
+You should also set the option `cache = TRUE` either globally or at least
+for the chunks you are tracking.  
 
 Whether you rely on manual or automatic detection of dependencies, `knit_flow` 
 will return the deduced flow graph. If the global option `autodep = TRUE` is set,
@@ -52,8 +53,9 @@ is that edges and nodes are equipped with explicit information on object depende
 
 An alternative to calling `knit_flow` is to add `knitrflow::set_hooks()` to 
 an initial (uncached) chunk and `knitrflow::dataflow_graph(file = "flow.RData")` 
-to the last chunk (the one with option `.__grab = TRUE`). Then the flow graph
-is stored in a file whenever the document is knitted. It can subsequently be loaded, 
+to the last chunk (the one with option `.__grab = TRUE`, which must be uncached 
+as well). Then the flow graph
+is stored in the file `flow.RData` whenever the document is knitted. It can subsequently be loaded, 
 plotted and further analyzed in R. 
 
 ### Using Graphviz command line tools
@@ -80,19 +82,20 @@ Knitr doesn't **evaluate** chunks based on the dependencies. The evaluation is
 done in the linear order of the input file. Even if chunks logically could be 
 evaluated in a different order according to the graph, this may not be doable 
 using knitr. This is primarily due to the fact that variables (objects) are shared across all 
-chunks during evaluation. Thus variables can be overwritten by intermediate chunks. 
+chunks during evaluation. Thus changing the actual evaluation order could inadvertently 
+result in variables being overwritten by intermediate chunks. 
 
 The manually set `dependson` chunk options control the reevaluation of cached chunks. 
 When these options are set correctly and in a minimal way, the graph will reflect the 
-actual evaluation dependencies, and thus the dataflow. However, the graph of the `manual`
-edges reflects nothing but how the author perceives the evaluation dependencies. But 
-it may be provide a useful overview.
+actual evaluation dependencies, and thus the dataflow. The graph of the `manual`
+edges only reflects how the author perceives the evaluation dependencies, but 
+it may provide a useful overview. 
 
 The `auto` edges are obtained using a function derived from knitr's `dep_auto`. It's based 
 on a chunk's usage of non-local objects, and where such objects could have been defined in 
 other chunks. It's conservative, and may introduce many **potential** dependencies that are 
 not actual dependencies. This is particularly so, if a variable name is reused and 
-reassigned in many chunks. In summary, a red edge is potentially a dependency that were 
+reassigned in many chunks. In summary, a red edge is potentially a dependency that was 
 missed by the manually set `dependson` options, but it need not be. 
 
 

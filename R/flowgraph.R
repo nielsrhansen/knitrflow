@@ -79,6 +79,9 @@ dataflow_graph <- function(file = NULL) {
     if (length(nodes) == 0) {
       flow <- DiagrammeR::create_graph(attr_theme = NULL)
     } else {
+      edges <- DiagrammeR::create_edge_df(from, to, rel, color = edge_color,
+                                          label = edge_label)
+      edges <- edges[!is.na(edges$from) & !is.na(edges$to), ]
       flow <- DiagrammeR::create_graph(
         DiagrammeR::create_node_df(length(nodes),
                                    label = nodes,
@@ -86,8 +89,7 @@ dataflow_graph <- function(file = NULL) {
                                    sizes = cache_sizes,
                                    fsizes = fig_sizes,
                                    objects = objects),
-        DiagrammeR::create_edge_df(from, to, rel, color = edge_color,
-                                   label = edge_label),
+        edges,
         attr_theme = NULL
       )
     }
@@ -150,7 +152,7 @@ knit_flow <- function(..., cache.path = NULL, fig.path = NULL) {
 #' Plot knitr dataflow graph
 #'
 #' Visualization of the dependencies among chunks in a knitr input file.
-#' Returns also the graph in the textual dot format (for Graphviz) that can processed
+#' Returns also the graph in the textual dot format (for Graphviz) that can be processed
 #' using the Graphviz command line tools.
 #'
 #' @param x    Object of class \code{dep_graph}. A dependency graph for a knitr input file.
@@ -297,7 +299,8 @@ summary.dep_graph <- function(object, y = 'all', ...) {
     ggplot2::geom_col(width = 0.7) + ggplot2::ylab("Degree") + ggplot2::xlab("") +
     ggplot2::coord_flip() + ggplot2::scale_fill_brewer("", palette="Set1") +
     ggplot2::scale_x_discrete(labels = NULL) +
-    ggplot2::theme(axis.ticks = ggplot2::element_blank())
+    ggplot2::theme(axis.ticks = ggplot2::element_blank()) +
+    ggplot2::theme(legend.position = "right")
 
   g1 <- ggplot2::ggplotGrob(p1)
   g2 <- ggplot2::ggplotGrob(p2)
